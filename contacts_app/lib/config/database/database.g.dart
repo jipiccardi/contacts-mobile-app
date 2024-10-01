@@ -96,7 +96,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Contact` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `lastname` TEXT, `phoneNumber` TEXT NOT NULL, `img` TEXT, `email` TEXT, `notes` TEXT, `userId` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Contact` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `lastname` TEXT, `phoneNumber` TEXT NOT NULL, `img` TEXT, `email` TEXT, `notes` TEXT, `userId` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -114,7 +114,20 @@ class _$ContactsDao extends ContactsDao {
   _$ContactsDao(
     this.database,
     this.changeListener,
-  ) : _queryAdapter = QueryAdapter(database);
+  )   : _queryAdapter = QueryAdapter(database),
+        _contactInsertionAdapter = InsertionAdapter(
+            database,
+            'Contact',
+            (Contact item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'lastname': item.lastname,
+                  'phoneNumber': item.phoneNumber,
+                  'img': item.img,
+                  'email': item.email,
+                  'notes': item.notes,
+                  'userId': item.userId
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -122,11 +135,13 @@ class _$ContactsDao extends ContactsDao {
 
   final QueryAdapter _queryAdapter;
 
+  final InsertionAdapter<Contact> _contactInsertionAdapter;
+
   @override
   Future<List<Contact>> findAllContacts() async {
     return _queryAdapter.queryList('SELECT * FROM Contact',
         mapper: (Map<String, Object?> row) => Contact(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
             lastname: row['lastname'] as String?,
             phoneNumber: row['phoneNumber'] as String,
@@ -134,5 +149,25 @@ class _$ContactsDao extends ContactsDao {
             email: row['email'] as String?,
             notes: row['notes'] as String?,
             userId: row['userId'] as int));
+  }
+
+  @override
+  Future<Contact?> findContactById(int id) async {
+    return _queryAdapter.query('SELECT * FROM Contact WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => Contact(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            lastname: row['lastname'] as String?,
+            phoneNumber: row['phoneNumber'] as String,
+            img: row['img'] as String?,
+            email: row['email'] as String?,
+            notes: row['notes'] as String?,
+            userId: row['userId'] as int),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> insertContact(Contact contact) async {
+    await _contactInsertionAdapter.insert(contact, OnConflictStrategy.abort);
   }
 }

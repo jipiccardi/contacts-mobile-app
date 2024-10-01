@@ -1,10 +1,12 @@
 import 'package:contacts_app/data/local_contacts_repository.dart';
 import 'package:contacts_app/domain/models/contact.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
+import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_app/presentation/widgets/contact_item.dart';
+import 'package:go_router/go_router.dart';
 
-class HomeScreen extends StatelessWidget{
+class HomeScreen extends StatelessWidget {
   static const name = 'home_screen';
 
   const HomeScreen({super.key});
@@ -16,10 +18,6 @@ class HomeScreen extends StatelessWidget{
         title: const Text('Contacts'),
       ),
       body: const _HomeView(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
@@ -32,7 +30,7 @@ class _HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<_HomeView> {
-  late final Future<List<Contact>> contactsFuture;
+  Future<List<Contact>>? contactsFuture;
 
   final ContactsRepository _repository = LocalContactsRepository();
 
@@ -44,28 +42,40 @@ class _HomeViewState extends State<_HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: contactsFuture,
-      builder: (context,snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        
-        final contactList = snapshot.data as List<Contact>;
-        return ListView.builder(
-          itemCount: contactList.length,
-          itemBuilder: (context, index) {
-            final contact = contactList[index];
-            return ContactItem(
-              contact: contact,
-              onTap: ()=> {},
+    return Scaffold(
+        body: FutureBuilder(
+          future: contactsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+
+            final contactList = snapshot.data as List<Contact>;
+            return ListView.builder(
+              itemCount: contactList.length,
+              itemBuilder: (context, index) {
+                final contact = contactList[index];
+                return ContactItem(
+                  contact: contact,
+                  onTap: () => {},
+                );
+              },
             );
           },
-        );
-      },
-    );
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final result = await context.pushNamed(NewContactScreen.name);
+            if (result == true) {
+              setState(() {
+                contactsFuture = _repository.getContacts();
+              });
+            }
+          },
+          child: const Icon(Icons.add),
+        ));
   }
 }

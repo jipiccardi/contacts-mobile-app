@@ -2,8 +2,8 @@ import 'package:floor/floor.dart';
 
 @entity
 class Contact {
-  @primaryKey
-  final int id;
+  @PrimaryKey(autoGenerate: true)
+  int? id;
 
   final String name;
   final String? lastname;
@@ -14,7 +14,7 @@ class Contact {
   final int userId;
 
   Contact({
-    required this.id,
+    this.id,
     required this.name,
     this.lastname,
     required this.phoneNumber,
