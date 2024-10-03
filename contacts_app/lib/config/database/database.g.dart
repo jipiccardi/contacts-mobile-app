@@ -127,6 +127,34 @@ class _$ContactsDao extends ContactsDao {
                   'email': item.email,
                   'notes': item.notes,
                   'userId': item.userId
+                }),
+        _contactUpdateAdapter = UpdateAdapter(
+            database,
+            'Contact',
+            ['id'],
+            (Contact item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'lastname': item.lastname,
+                  'phoneNumber': item.phoneNumber,
+                  'img': item.img,
+                  'email': item.email,
+                  'notes': item.notes,
+                  'userId': item.userId
+                }),
+        _contactDeletionAdapter = DeletionAdapter(
+            database,
+            'Contact',
+            ['id'],
+            (Contact item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'lastname': item.lastname,
+                  'phoneNumber': item.phoneNumber,
+                  'img': item.img,
+                  'email': item.email,
+                  'notes': item.notes,
+                  'userId': item.userId
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -136,6 +164,10 @@ class _$ContactsDao extends ContactsDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Contact> _contactInsertionAdapter;
+
+  final UpdateAdapter<Contact> _contactUpdateAdapter;
+
+  final DeletionAdapter<Contact> _contactDeletionAdapter;
 
   @override
   Future<List<Contact>> findAllContacts() async {
@@ -169,5 +201,15 @@ class _$ContactsDao extends ContactsDao {
   @override
   Future<void> insertContact(Contact contact) async {
     await _contactInsertionAdapter.insert(contact, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    await _contactUpdateAdapter.update(contact, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteContact(Contact contact) async {
+    await _contactDeletionAdapter.delete(contact);
   }
 }

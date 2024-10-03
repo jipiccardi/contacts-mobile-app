@@ -12,4 +12,10 @@ abstract class ContactsDao {
 
   @insert
   Future<void> insertContact(Contact contact);
+
+  @update
+  Future<void> updateContact(Contact contact);
+
+  @delete
+  Future<void> deleteContact(Contact contact);
 }

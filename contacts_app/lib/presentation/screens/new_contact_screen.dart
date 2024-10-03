@@ -1,10 +1,9 @@
 import 'package:contacts_app/data/local_contacts_repository.dart';
 import 'package:contacts_app/domain/models/contact.dart';
-import 'package:contacts_app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
-
 
 class NewContactScreen extends StatelessWidget {
   static const name = 'new_contact_screen';
@@ -14,32 +13,24 @@ class NewContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:AppBar(
+      appBar: AppBar(
         title: const Text('New Contact'),
       ),
-      body: const _NewContactView(),
+      body: _NewContactView(),
     );
   }
 }
 
-class _NewContactView extends StatefulWidget {
-  const _NewContactView();
-
-  @override
-  State<_NewContactView> createState() => _NewContactViewState();
-}
-
-class _NewContactViewState extends State<_NewContactView> {
+class _NewContactView extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final ContactsRepository _repository = LocalContactsRepository();
 
-  String name = '';
-  String lastname = '';
-  String phoneNumber = '';
-  String email = '';
-  String notes = '';
-
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController lastnameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController notesController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -49,71 +40,103 @@ class _NewContactViewState extends State<_NewContactView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            const SizedBox(height: 20),
             TextFormField(
-            decoration: const InputDecoration(
-              label: Text('Name')
+              controller: nameController,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                label: const Text('Name'),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              validator: (v) {
+                if (v == null || v.isEmpty) {
+                  return 'Must enter contact name';
+                }
+                return null;
+              },
             ),
-            validator: (v) {
-              if (v == null || v.isEmpty) {
-                return 'Must enter contact name';
-              }
-              return null;
-            },
-            onSaved: (value) {
-              name = value!;
-            },
-          ),
+            const SizedBox(height: 20),
             TextFormField(
-            decoration: const InputDecoration(
-              label: Text('Lastname')
+              controller: lastnameController,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                label: const Text('Lastname'),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
             ),
-            onSaved: (value) {
-              lastname = value!;
-            },
-          ),
+            const SizedBox(height: 20),
             TextFormField(
-            decoration: const InputDecoration(
-              label: Text('Phone Number')
+              controller: phoneController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly, // Only allows digits
+              ],
+              decoration: InputDecoration(
+                label: const Text('Phone Number'),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              validator: (v) {
+                if (v == null || v.isEmpty) {
+                  return 'Must enter contact number';
+                }
+                return null;
+              },
             ),
-            validator: (v) {
-              if (v == null || v.isEmpty) {
-                return 'Must enter contact number';
-              }
-              return null;
-            },
-            onSaved: (value) {
-              phoneNumber = value!;
-            },
-          ),
+            const SizedBox(height: 20),
             TextFormField(
-            decoration: const InputDecoration(
-              label: Text('Email')
+              controller: emailController,
+              decoration: InputDecoration(
+                label: const Text('Email'),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
             ),
-            onSaved: (value) {
-              email = value!;
-            },
-          ),
+            const SizedBox(height: 20),
             TextFormField(
-            decoration: const InputDecoration(
-              label: Text('Notes')
+              controller: notesController,
+              decoration: InputDecoration(
+                label: const Text('Notes'),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
             ),
-            onSaved: (value) {
-              notes = value!;
-            },
-          ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()){
-            _formKey.currentState!.save();
-            setState(() {
-              //database.contactDao.insertContact(Contact(name: name, phoneNumber: phoneNumber, userId: 1));
-              _repository.insertContact(Contact(name: name, phoneNumber: phoneNumber, userId: 1));
-            });
-            _formKey.currentState!.reset();
-            context.pop(true);
+        onPressed: () async {
+          if (_formKey.currentState!.validate()) {
+            await _repository.insertContact(Contact(
+                name: nameController.text,
+                lastname: lastnameController.text,
+                phoneNumber: phoneController.text,
+                email: emailController.text,
+                notes: notesController.text,
+                userId: 1));
+            if (context.mounted) context.pop(true);
           }
         },
         child: const Icon(Icons.check),

@@ -6,7 +6,7 @@ import 'package:contacts_app/config/router/app_router.dart';
 
 late AppDatabase database;
 
-void main() async{
+void main() async {
   // Ensure that the binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,7 +29,7 @@ class MainApp extends StatelessWidget {
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorSchemeSeed: Colors.grey,
+        useMaterial3: true,
         brightness: Brightness.light
       ),
     );

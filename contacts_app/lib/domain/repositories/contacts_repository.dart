@@ -5,4 +5,8 @@ abstract class ContactsRepository {
   Future<Contact> getById(int id);
 
   Future<void> insertContact(Contact contact);
+
+  Future<void> updateContact(Contact contact);
+
+  Future<void> deleteContact(Contact contact);
 }

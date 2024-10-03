@@ -1,6 +1,7 @@
 import 'package:contacts_app/data/local_contacts_repository.dart';
 import 'package:contacts_app/domain/models/contact.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
+import 'package:contacts_app/presentation/screens/contact_detail_screen.dart';
 import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_app/presentation/widgets/contact_item.dart';
@@ -60,7 +61,13 @@ class _HomeViewState extends State<_HomeView> {
                 final contact = contactList[index];
                 return ContactItem(
                   contact: contact,
-                  onTap: () => {},
+                  onTap: () async {
+                    await context.pushNamed(ContactDetailScreen.name,
+                        pathParameters: {'contactId': contact.id.toString()});
+                    setState(() {
+                      contactsFuture = _repository.getContacts();
+                    });
+                  },
                 );
               },
             );

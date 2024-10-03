@@ -21,4 +21,14 @@ class LocalContactsRepository implements ContactsRepository {
   Future<void> insertContact(Contact contact) async {
     await _contactsDao.insertContact(contact);
   }
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    return _contactsDao.updateContact(contact);
+  }
+
+  @override
+  Future<void> deleteContact(Contact contact) async {
+    return _contactsDao.deleteContact(contact);
+  }
 }

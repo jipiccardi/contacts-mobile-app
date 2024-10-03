@@ -19,7 +19,6 @@ abstract class  AppDatabase extends FloorDatabase {
       Callback(
         onCreate: (database, version) async {
           // This method is only called when the database is first created.
-          //await _prepopulateDb(database);
         },
       ),
     ).build();
