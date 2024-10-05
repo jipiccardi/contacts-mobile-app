@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class NewContactScreen extends StatelessWidget {
-  static const name = 'new_contact_screen';
-
   const NewContactScreen({super.key});
+
+  static const name = 'new_contact_screen';
 
   @override
   Widget build(BuildContext context) {
@@ -16,15 +18,24 @@ class NewContactScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('New Contact'),
       ),
-      body: _NewContactView(),
+      body: const _NewContactView(),
     );
   }
 }
 
-class _NewContactView extends StatelessWidget {
+class _NewContactView extends StatefulWidget {
+  const _NewContactView();
+
+  @override
+  State<_NewContactView> createState() => _NewContactState();
+}
+
+class _NewContactState extends State<_NewContactView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final ContactsRepository _repository = LocalContactsRepository();
+
+  File? _selectedImage;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastnameController = TextEditingController();
@@ -35,95 +46,121 @@ class _NewContactView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: nameController,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                label: const Text('Name'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const SizedBox(height: 20),
+                CircleAvatar(
+                  radius: 80,
+                  backgroundImage: _selectedImage != null
+                      ? FileImage(_selectedImage!)
+                      : const AssetImage('assets/images/default_user.png')
+                          as ImageProvider,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                TextButton(
+                  child: const Text('Add Image'),
+                  onPressed: () {
+                    _pickImageFromGallery();
+                  },
                 ),
-              ),
-              validator: (v) {
-                if (v == null || v.isEmpty) {
-                  return 'Must enter contact name';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: lastnameController,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                label: const Text('Lastname'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: nameController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    label: const Text('Name'),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Must enter contact name';
+                    }
+                    return null;
+                  },
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: lastnameController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    label: const Text('Lastname'),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: phoneController,
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly, // Only allows digits
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter
+                        .digitsOnly, // Only allows digits
+                  ],
+                  decoration: InputDecoration(
+                    label: const Text('Phone Number'),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Must enter contact number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    label: const Text('Email'),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: notesController,
+                  decoration: InputDecoration(
+                    label: const Text('Notes'),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
               ],
-              decoration: InputDecoration(
-                label: const Text('Phone Number'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              validator: (v) {
-                if (v == null || v.isEmpty) {
-                  return 'Must enter contact number';
-                }
-                return null;
-              },
             ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: emailController,
-              decoration: InputDecoration(
-                label: const Text('Email'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: notesController,
-              decoration: InputDecoration(
-                label: const Text('Notes'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -135,6 +172,7 @@ class _NewContactView extends StatelessWidget {
                 phoneNumber: phoneController.text,
                 email: emailController.text,
                 notes: notesController.text,
+                img: _selectedImage?.path,
                 userId: 1));
             if (context.mounted) context.pop(true);
           }
@@ -142,5 +180,13 @@ class _NewContactView extends StatelessWidget {
         child: const Icon(Icons.check),
       ),
     );
+  }
+
+  Future _pickImageFromGallery() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+    setState(() {
+      _selectedImage = File(image.path);
+    });
   }
 }

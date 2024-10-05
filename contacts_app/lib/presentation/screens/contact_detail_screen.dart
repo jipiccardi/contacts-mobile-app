@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:contacts_app/domain/models/contact.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:io';
+
 
 class ContactDetailScreen extends StatefulWidget {
   const ContactDetailScreen({super.key, required this.contactId});
@@ -82,9 +84,12 @@ class _ContactDetailView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircleAvatar(
+             CircleAvatar(
               radius: 100,
-              backgroundImage: AssetImage('assets/images/default_user.png'),
+              backgroundImage: contact.img != null
+              ? FileImage(File(contact.img!))
+              : const AssetImage('assets/images/default_user.png')
+              as ImageProvider,
             ),
             const SizedBox(height: 15),
             Text(
