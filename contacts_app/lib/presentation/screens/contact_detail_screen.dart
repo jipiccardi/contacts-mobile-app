@@ -6,7 +6,6 @@ import 'package:contacts_app/domain/repositories/contacts_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:io';
 
-
 class ContactDetailScreen extends StatefulWidget {
   const ContactDetailScreen({super.key, required this.contactId});
 
@@ -19,6 +18,7 @@ class ContactDetailScreen extends StatefulWidget {
 
 class _ContactDetailScreenState extends State<ContactDetailScreen> {
   Future<Contact>? futureContact;
+  late PageController _pageController;
 
   final ContactsRepository _repository = LocalContactsRepository();
 
@@ -26,6 +26,13 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
   void initState() {
     super.initState();
     futureContact = _repository.getById(widget.contactId);
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -64,7 +71,14 @@ class _ContactDetailScreenState extends State<ContactDetailScreen> {
             }
 
             final contact = snapshot.data as Contact;
-            return _ContactDetailView(contact: contact);
+            return PageView(
+              controller: _pageController,
+              physics: const BouncingScrollPhysics(),
+              children: [
+                _ContactDetailView(contact: contact),
+                SlideView(imagePath: contact.img ?? '')
+              ],
+            );
           }),
     );
   }
@@ -84,12 +98,12 @@ class _ContactDetailView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-             CircleAvatar(
+            CircleAvatar(
               radius: 100,
               backgroundImage: contact.img != null
-              ? FileImage(File(contact.img!))
-              : const AssetImage('assets/images/default_user.png')
-              as ImageProvider,
+                  ? FileImage(File(contact.img!))
+                  : const AssetImage('assets/images/default_user.png')
+                      as ImageProvider,
             ),
             const SizedBox(height: 15),
             Text(
@@ -139,5 +153,33 @@ class _ContactDetailView extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class SlideView extends StatelessWidget {
+  final String imagePath;
+
+  const SlideView({super.key, required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Center(
+            child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: imagePath.isNotEmpty
+          ? Image.file(
+              File(imagePath),
+              fit: BoxFit.contain,
+              width: double.infinity,
+              height: double.infinity,
+            )
+          : const Image(
+              image: AssetImage('assets/images/default_user.png'),
+              fit: BoxFit.contain,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+    )));
   }
 }
