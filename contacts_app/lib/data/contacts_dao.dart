@@ -7,6 +7,9 @@ abstract class ContactsDao {
   @Query('SELECT * FROM Contact')
   Future<List<Contact>> findAllContacts();
 
+  @Query('SELECT * FROM Contact WHERE userId = :id')
+  Future<List<Contact>> findAllContactsByUserId(int id);
+
   @Query('SELECT * FROM Contact WHERE id = :id')
   Future<Contact?> findContactById(int id);
 

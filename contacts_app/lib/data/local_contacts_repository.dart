@@ -13,6 +13,11 @@ class LocalContactsRepository implements ContactsRepository {
   }
 
   @override
+  Future<List<Contact>> getContactsByUserId(int id) {
+    return _contactsDao.findAllContactsByUserId(id);
+  }
+
+  @override
   Future<Contact> getById(int id) {
     return _contactsDao.findContactById(id).then((contact) => contact!);
   }

@@ -6,19 +6,46 @@ import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_app/presentation/widgets/contact_item.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:developer';
 
 class HomeScreen extends StatelessWidget {
   static const name = 'home_screen';
+  final _scafoldKey = GlobalKey<ScaffoldState>();
 
-  const HomeScreen({super.key});
+
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scafoldKey,
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              _scafoldKey.currentState!.openDrawer(); // Open the drawer using the key
+            },
+            icon: const Icon(Icons.menu)),
         title: const Text('Contacts'),
       ),
       body: const _HomeView(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children:  <Widget>[
+            const DrawerHeader(
+              child:  Text('Menu'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap:() {
+                Navigator.pop(context);
+                // context.push
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 }

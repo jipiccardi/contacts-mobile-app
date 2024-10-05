@@ -74,6 +74,8 @@ class _$AppDatabase extends AppDatabase {
 
   ContactsDao? _contactDaoInstance;
 
+  UsersDao? _userDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -97,6 +99,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Contact` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `lastname` TEXT, `phoneNumber` TEXT NOT NULL, `img` TEXT, `email` TEXT, `notes` TEXT, `userId` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `User` (`id` INTEGER NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -107,6 +111,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   ContactsDao get contactDao {
     return _contactDaoInstance ??= _$ContactsDao(database, changeListener);
+  }
+
+  @override
+  UsersDao get userDao {
+    return _userDaoInstance ??= _$UsersDao(database, changeListener);
   }
 }
 
@@ -184,6 +193,21 @@ class _$ContactsDao extends ContactsDao {
   }
 
   @override
+  Future<List<Contact>> findAllContactsByUserId(int id) async {
+    return _queryAdapter.queryList('SELECT * FROM Contact WHERE userId = ?1',
+        mapper: (Map<String, Object?> row) => Contact(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            lastname: row['lastname'] as String?,
+            phoneNumber: row['phoneNumber'] as String,
+            img: row['img'] as String?,
+            email: row['email'] as String?,
+            notes: row['notes'] as String?,
+            userId: row['userId'] as int),
+        arguments: [id]);
+  }
+
+  @override
   Future<Contact?> findContactById(int id) async {
     return _queryAdapter.query('SELECT * FROM Contact WHERE id = ?1',
         mapper: (Map<String, Object?> row) => Contact(
@@ -211,5 +235,37 @@ class _$ContactsDao extends ContactsDao {
   @override
   Future<void> deleteContact(Contact contact) async {
     await _contactDeletionAdapter.delete(contact);
+  }
+}
+
+class _$UsersDao extends UsersDao {
+  _$UsersDao(
+    this.database,
+    this.changeListener,
+  ) : _queryAdapter = QueryAdapter(database);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  @override
+  Future<List<User>> findAllUsers() async {
+    return _queryAdapter.queryList('SELECT * FROM User',
+        mapper: (Map<String, Object?> row) => User(
+            id: row['id'] as int,
+            username: row['username'] as String,
+            password: row['password'] as String));
+  }
+
+  @override
+  Future<User?> findUserById(int id) async {
+    return _queryAdapter.query('SELECT * FROM User WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => User(
+            id: row['id'] as int,
+            username: row['username'] as String,
+            password: row['password'] as String),
+        arguments: [id]);
   }
 }

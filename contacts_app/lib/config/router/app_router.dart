@@ -1,14 +1,20 @@
 import 'package:contacts_app/presentation/screens/contact_detail_screen.dart';
 import 'package:contacts_app/presentation/screens/edit_contact_screen.dart';
+import 'package:contacts_app/presentation/screens/login_screen.dart';
 import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:contacts_app/presentation/screens/home_screen.dart';
 
 final appRouter = GoRouter(routes: [
   GoRoute(
-    name: HomeScreen.name,
+    name: LoginScreen.name,
     path: '/',
-    builder: (context, state) => const HomeScreen(),
+    builder: (context, state) => const LoginScreen(),
+  ),
+  GoRoute(
+    name: HomeScreen.name,
+    path: '/home',
+    builder: (context, state) => HomeScreen(),
   ),
   GoRoute(
     name: NewContactScreen.name,

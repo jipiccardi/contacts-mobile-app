@@ -2,6 +2,9 @@ import 'package:contacts_app/domain/models/contact.dart';
 
 abstract class ContactsRepository {
   Future<List<Contact>> getContacts();
+
+  Future<List<Contact>> getContactsByUserId(int id);
+
   Future<Contact> getById(int id);
 
   Future<void> insertContact(Contact contact);
