@@ -1,6 +1,7 @@
 import 'package:contacts_app/data/local_contacts_repository.dart';
 import 'package:contacts_app/domain/models/contact.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
+import 'package:contacts_app/main.dart';
 import 'package:contacts_app/presentation/screens/contact_detail_screen.dart';
 import 'package:contacts_app/presentation/screens/login_screen.dart';
 import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
@@ -11,11 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatelessWidget {
   static const name = 'home_screen';
-  final int userId;
-  final String username;
   final _scafoldKey = GlobalKey<ScaffoldState>();
 
-  HomeScreen({super.key,required this.userId,required this.username});
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +40,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                    const Text('Menu',style: TextStyle(fontWeight: FontWeight.bold)),
                    const SizedBox(height: 20), 
-                   Text('Hi, $username!',style: const TextStyle(fontSize: 18),)
+                   Text('Hi, $sessionUsername!',style: const TextStyle(fontSize: 18),)
                   ],
               ),
             ),
@@ -58,7 +57,7 @@ class HomeScreen extends StatelessWidget {
               title: const Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
-                _removeSessionUserId();
+                _logout();
                 context.pushReplacementNamed(LoginScreen.name);
               },
             )
@@ -68,7 +67,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  _removeSessionUserId() async {
+  _logout() async {
+    sessionUserId = '';
+    sessionUsername = '';
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
   }
@@ -89,7 +91,7 @@ class _HomeViewState extends State<_HomeView> {
   @override
   void initState() {
     super.initState();
-    contactsFuture = _repository.getContacts();
+    contactsFuture = _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
   }
 
   @override
@@ -116,7 +118,7 @@ class _HomeViewState extends State<_HomeView> {
                     await context.pushNamed(ContactDetailScreen.name,
                         pathParameters: {'contactId': contact.id.toString()});
                     setState(() {
-                      contactsFuture = _repository.getContacts();
+                      contactsFuture = _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
                     });
                   },
                 );
@@ -129,7 +131,7 @@ class _HomeViewState extends State<_HomeView> {
             final result = await context.pushNamed(NewContactScreen.name);
             if (result == true) {
               setState(() {
-                contactsFuture = _repository.getContacts();
+                contactsFuture = _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
               });
             }
           },

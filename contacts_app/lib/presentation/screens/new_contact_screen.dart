@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:contacts_app/main.dart';
+
 
 class NewContactScreen extends StatelessWidget {
   const NewContactScreen({super.key});
@@ -173,7 +175,7 @@ class _NewContactState extends State<_NewContactView> {
                 email: emailController.text,
                 notes: notesController.text,
                 img: _selectedImage?.path,
-                userId: 1));
+                userId: int.tryParse(sessionUserId) ?? -1));
             if (context.mounted) context.pop(true);
           }
         },

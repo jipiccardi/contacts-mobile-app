@@ -1,3 +1,4 @@
+import 'package:contacts_app/main.dart';
 import 'package:contacts_app/presentation/screens/contact_detail_screen.dart';
 import 'package:contacts_app/presentation/screens/edit_contact_screen.dart';
 import 'package:contacts_app/presentation/screens/login_screen.dart';
@@ -10,18 +11,16 @@ final appRouter = GoRouter(routes: [
     name: LoginScreen.name,
     path: '/',
     builder: (context, state) => const LoginScreen(),
+    redirect: (context,state) {
+      if (sessionUserId!='' && sessionUsername!='') {
+        return '/home';
+      }
+    }
   ),
   GoRoute(
     name: HomeScreen.name,
-    path: '/home/:userId/:username',
-    builder: (context, state) {
-      final userId = state.pathParameters['userId'];
-      final username = state.pathParameters['username'];
-      return HomeScreen(
-        userId: int.tryParse(userId.toString()) ?? -1,
-        username: username ?? '',
-      );
-    },
+    path: '/home',
+    builder: (context, state) => HomeScreen(),
   ),
   GoRoute(
     name: NewContactScreen.name,

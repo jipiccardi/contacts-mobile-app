@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:contacts_app/data/local_users_repository.dart';
 import 'package:contacts_app/domain/models/user.dart';
 import 'package:contacts_app/domain/repositories/users_repository.dart';
+import 'package:contacts_app/main.dart';
 import 'package:contacts_app/presentation/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -13,23 +16,12 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _loadSessionIfExists(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
       ),
       body: _LoginView(),
     );
-  }
-
-    _loadSessionIfExists(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String id = prefs.getString('user_id') ?? "";
-    String username = prefs.getString('username') ?? "";
-    if (id != '' && username != '') {
-      if (context.mounted) context.pushReplacementNamed(HomeScreen.name, pathParameters: {'userId': id.toString(),'username':username});
-    }
   }
 }
 
@@ -45,9 +37,7 @@ class _LoginView extends StatelessWidget {
   final UsersRepository _usersRepository = LocalUsersRepository();
 
   @override
-  Widget build(BuildContext context) {
-    //_loadSessionIfExists(context);
-    
+  Widget build(BuildContext context) {    
     return Scaffold(
       body: Center(
         child: Padding(
@@ -112,8 +102,8 @@ class _LoginView extends StatelessWidget {
           (user) => user.username == username && user.password == password,
           orElse: () => throw Exception('User not found'));
 
-      _saveSessionUserId(user.id,user.username);
-      if (context.mounted) context.pushReplacementNamed(HomeScreen.name, pathParameters: {'userId': user.id.toString(),'username':user.username});
+      await _saveSessionUserId(user.id,user.username);
+      if (context.mounted) context.pushReplacementNamed(HomeScreen.name);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context)
@@ -133,16 +123,11 @@ class _LoginView extends StatelessWidget {
 
   _saveSessionUserId(int id, String username) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     await prefs.setString('user_id', id.toString());
     await prefs.setString('username', username);
-  }
 
-  // _loadSessionIfExists(BuildContext context) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String id = prefs.getString('user_id') ?? "";
-  //   String username = prefs.getString('username') ?? "";
-  //   if (id != '' && username != '') {
-  //     if (context.mounted) context.pushReplacementNamed(HomeScreen.name, pathParameters: {'userId': id.toString(),'username':username});
-  //   }
-  // }
+    sessionUserId = id.toString();
+    sessionUsername = username;
+  }
 }
