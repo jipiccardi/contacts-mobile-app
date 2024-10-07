@@ -2,18 +2,20 @@ import 'package:contacts_app/data/local_contacts_repository.dart';
 import 'package:contacts_app/domain/models/contact.dart';
 import 'package:contacts_app/domain/repositories/contacts_repository.dart';
 import 'package:contacts_app/presentation/screens/contact_detail_screen.dart';
+import 'package:contacts_app/presentation/screens/login_screen.dart';
 import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_app/presentation/widgets/contact_item.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:developer';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatelessWidget {
   static const name = 'home_screen';
+  final int userId;
+  final String username;
   final _scafoldKey = GlobalKey<ScaffoldState>();
 
-
-  HomeScreen({super.key});
+  HomeScreen({super.key,required this.userId,required this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,8 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              _scafoldKey.currentState!.openDrawer(); // Open the drawer using the key
+              _scafoldKey.currentState!
+                  .openDrawer(); 
             },
             icon: const Icon(Icons.menu)),
         title: const Text('Contacts'),
@@ -31,22 +34,43 @@ class HomeScreen extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children:  <Widget>[
-            const DrawerHeader(
-              child:  Text('Menu'),
+          children: <Widget>[
+             DrawerHeader(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, 
+                children: [
+                   const Text('Menu',style: TextStyle(fontWeight: FontWeight.bold)),
+                   const SizedBox(height: 20), 
+                   Text('Hi, $username!',style: const TextStyle(fontSize: 18),)
+                  ],
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
-              onTap:() {
+              onTap: () {
                 Navigator.pop(context);
                 // context.push
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+                _removeSessionUserId();
+                context.pushReplacementNamed(LoginScreen.name);
               },
             )
           ],
         ),
       ),
     );
+  }
+
+  _removeSessionUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
   }
 }
 

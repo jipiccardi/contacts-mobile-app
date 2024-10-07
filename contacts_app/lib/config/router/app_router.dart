@@ -13,8 +13,15 @@ final appRouter = GoRouter(routes: [
   ),
   GoRoute(
     name: HomeScreen.name,
-    path: '/home',
-    builder: (context, state) => HomeScreen(),
+    path: '/home/:userId/:username',
+    builder: (context, state) {
+      final userId = state.pathParameters['userId'];
+      final username = state.pathParameters['username'];
+      return HomeScreen(
+        userId: int.tryParse(userId.toString()) ?? -1,
+        username: username ?? '',
+      );
+    },
   ),
   GoRoute(
     name: NewContactScreen.name,
