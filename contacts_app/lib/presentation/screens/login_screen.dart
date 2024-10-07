@@ -13,12 +13,23 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _loadSessionIfExists(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
       ),
       body: _LoginView(),
     );
+  }
+
+    _loadSessionIfExists(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String id = prefs.getString('user_id') ?? "";
+    String username = prefs.getString('username') ?? "";
+    if (id != '' && username != '') {
+      if (context.mounted) context.pushReplacementNamed(HomeScreen.name, pathParameters: {'userId': id.toString(),'username':username});
+    }
   }
 }
 
@@ -35,7 +46,7 @@ class _LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _loadSessionIfExists(context);
+    //_loadSessionIfExists(context);
     
     return Scaffold(
       body: Center(
@@ -126,12 +137,12 @@ class _LoginView extends StatelessWidget {
     await prefs.setString('username', username);
   }
 
-  _loadSessionIfExists(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String id = prefs.getString('user_id') ?? "";
-    String username = prefs.getString('username') ?? "";
-    if (id != '' && username != '') {
-      if (context.mounted) context.pushReplacementNamed(HomeScreen.name, pathParameters: {'userId': id.toString(),'username':username});
-    }
-  }
+  // _loadSessionIfExists(BuildContext context) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String id = prefs.getString('user_id') ?? "";
+  //   String username = prefs.getString('username') ?? "";
+  //   if (id != '' && username != '') {
+  //     if (context.mounted) context.pushReplacementNamed(HomeScreen.name, pathParameters: {'userId': id.toString(),'username':username});
+  //   }
+  // }
 }
