@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:contacts_app/main.dart';
 
-
 class NewContactScreen extends StatelessWidget {
   const NewContactScreen({super.key});
 

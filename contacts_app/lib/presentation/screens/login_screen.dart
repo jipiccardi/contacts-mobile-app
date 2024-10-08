@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:contacts_app/data/local_users_repository.dart';
 import 'package:contacts_app/domain/models/user.dart';
 import 'package:contacts_app/domain/repositories/users_repository.dart';
@@ -37,7 +35,7 @@ class _LoginView extends StatelessWidget {
   final UsersRepository _usersRepository = LocalUsersRepository();
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Padding(
@@ -102,7 +100,7 @@ class _LoginView extends StatelessWidget {
           (user) => user.username == username && user.password == password,
           orElse: () => throw Exception('User not found'));
 
-      await _saveSessionUserId(user.id,user.username);
+      await _saveSessionCredentials(user.id, user.username);
       if (context.mounted) context.pushReplacementNamed(HomeScreen.name);
     } catch (e) {
       if (context.mounted) {
@@ -121,7 +119,7 @@ class _LoginView extends StatelessWidget {
     }
   }
 
-  _saveSessionUserId(int id, String username) async {
+  _saveSessionCredentials(int id, String username) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setString('user_id', id.toString());

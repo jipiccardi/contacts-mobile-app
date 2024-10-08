@@ -5,6 +5,7 @@ import 'package:contacts_app/main.dart';
 import 'package:contacts_app/presentation/screens/contact_detail_screen.dart';
 import 'package:contacts_app/presentation/screens/login_screen.dart';
 import 'package:contacts_app/presentation/screens/new_contact_screen.dart';
+import 'package:contacts_app/presentation/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_app/presentation/widgets/contact_item.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +24,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              _scafoldKey.currentState!
-                  .openDrawer(); 
+              _scafoldKey.currentState!.openDrawer();
             },
             icon: const Icon(Icons.menu)),
         title: const Text('Contacts'),
@@ -32,24 +32,23 @@ class HomeScreen extends StatelessWidget {
       body: const _HomeView(),
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: <Widget>[
-             DrawerHeader(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, 
-                children: [
-                   const Text('Menu',style: TextStyle(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 20), 
-                   Text('Hi, $sessionUsername!',style: const TextStyle(fontSize: 18),)
-                  ],
-              ),
+            Container(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
             ),
+            ListTile(
+              leading: const Icon(Icons.emoji_emotions_outlined),
+              title: Text('Hi, $sessionUsername!',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20.0)),
+            ),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
-                // context.push
+                context.pushNamed(SettingsScreen.name);
               },
             ),
             ListTile(
@@ -91,7 +90,8 @@ class _HomeViewState extends State<_HomeView> {
   @override
   void initState() {
     super.initState();
-    contactsFuture = _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
+    contactsFuture =
+        _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
   }
 
   @override
@@ -118,7 +118,8 @@ class _HomeViewState extends State<_HomeView> {
                     await context.pushNamed(ContactDetailScreen.name,
                         pathParameters: {'contactId': contact.id.toString()});
                     setState(() {
-                      contactsFuture = _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
+                      contactsFuture = _repository.getContactsByUserId(
+                          int.tryParse(sessionUserId) ?? -1);
                     });
                   },
                 );
@@ -131,7 +132,8 @@ class _HomeViewState extends State<_HomeView> {
             final result = await context.pushNamed(NewContactScreen.name);
             if (result == true) {
               setState(() {
-                contactsFuture = _repository.getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
+                contactsFuture = _repository
+                    .getContactsByUserId(int.tryParse(sessionUserId) ?? -1);
               });
             }
           },
