@@ -6,6 +6,10 @@ class DarkModeNotifier extends StateNotifier<bool> {
   void toggleDarkMode() {
     state = !state;
   }
+
+  void setDarkModeStatus(bool value) {
+    state = value;
+  }
 }
 
 final darkModeProvider = StateNotifierProvider<DarkModeNotifier, bool>((ref) {

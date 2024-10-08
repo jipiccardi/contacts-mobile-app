@@ -11,6 +11,7 @@ late AppDatabase database;
 
 String sessionUserId = '';
 String sessionUsername = '';
+bool sessionDarkMode = false;
 
 void main() async {
   // Ensure that the binding is initialized
@@ -24,8 +25,21 @@ void main() async {
 
   await _loadSession();
 
-  runApp(const ProviderScope(child: MainApp()));
-}
+  runApp(
+    ProviderScope(
+      overrides: [
+        darkModeProvider.overrideWith((ref) {
+          final notifier = DarkModeNotifier();
+          if (sessionDarkMode) {
+            notifier.setDarkModeStatus(true);
+          }
+          
+          return notifier;
+        }),
+      ],
+      child: const MainApp(),
+    ),
+  );}
 
 class MainApp extends ConsumerWidget {
   const MainApp({super.key});
@@ -49,5 +63,6 @@ Future<void> _loadSession() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   sessionUserId = prefs.getString('user_id') ?? '';
   sessionUsername = prefs.getString('username') ?? '';
+  sessionDarkMode = prefs.getBool('dark_mode') ?? false;
   return;
 }
